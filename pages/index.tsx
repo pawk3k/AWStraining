@@ -8,9 +8,16 @@ type Item = {
   todo: string;
   id: string;
 };
-export const Item: FunctionComponent<{ text: string }> = ({ text }) => (
-  <div className="even:bg-gray-100 odd:bg-gray-50 hover:bg-gray-200  w-1/2 h-7 rounded-sm m-2">{text}</div>
-);
+export const Item: FunctionComponent<Item> = ({ todo , id }) => { 
+
+  const handleDeleteItem = async () =>{
+      await fetch(`${process.env.NEXT_PUBLIC_API}`, {method:"DELETE", 
+    body :
+      JSON.stringify({id})
+    })
+  }
+  return <div className="even:bg-gray-100 odd:bg-gray-50 hover:bg-gray-200  w-1/2 h-7 rounded-sm m-2 flex justify-between"><div>{todo}</div><button onClick={handleDeleteItem} className="bg-red-500 w-5 rounded cursor-pointer">-</button></div>
+ };
 export const Heading: FunctionComponent = () =>
 (
   <div className="h-8 font-medium text-4xl mb-12">
@@ -29,14 +36,10 @@ const Home: NextPage = () => {
     setItem(e.target.value)  
   }
   const handleAddItem = async ()=>{
-    const response =   await fetch(`${process.env.NEXT_PUBLIC_API}`, {method:"POST", 
-    headers: {
-      'Content-Type': 'application/json'
-    },
+      await fetch(`${process.env.NEXT_PUBLIC_API}`, {method:"POST", 
     body :
-      JSON.stringify(item)
+      JSON.stringify({todo: item})
     })
-    return response
   }
 
   return (
@@ -46,7 +49,7 @@ const Home: NextPage = () => {
       Add new:<input type="text" className="shadow-lg mx-8" value={item} onChange={handleChange}/>
       <button className="bg-blue-500 w-12 rounded-md drop-shadow-md" onClick={handleAddItem}>add</button>
       </div>
-      {items?.length && items.map(({id , todo} ) => <Item text={todo || 'noname'} key={id} />)}
+      {items?.length && items.map(({id , todo} ) => <Item todo={todo || 'noname'} key={id} id={id}/>)}
     </div>
   );
 };
